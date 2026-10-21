@@ -117,10 +117,9 @@
             overflow-y: auto;
         }
         .page { display: none; min-height: 100vh; padding: 3rem; animation: fadeIn 0.35s ease; }
-        .page.active { display: flex; align-items: center; justify-content: center; }
-        .page.page-long.active { align-items: flex-start; padding-top: 3rem; }
+        .page.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .page-inner { max-width: 960px; margin: 0 auto; width: 100%; }
+        .page-inner { max-width: 960px; margin: auto; width: 100%; }
 
         /* ===== Hero ===== */
         .hero-page { display: none; min-height: 100vh; padding: 0 3rem; animation: fadeIn 0.35s ease; }
@@ -322,7 +321,7 @@
         <!-- 02 關於我 -->
         <div class="page" id="page-about"><div class="page-inner" id="about-content"><p class="loading">Loading</p></div></div>
         <!-- 03 學習隨筆 -->
-        <div class="page page-long" id="page-blog"><div class="page-inner" id="blog-content"><p class="loading">Loading</p></div></div>
+        <div class="page" id="page-blog"><div class="page-inner" id="blog-content"><p class="loading">Loading</p></div></div>
         <!-- 04 資源分享 -->
         <div class="page" id="page-resources"><div class="page-inner" id="resources-content"><p class="loading">Loading</p></div></div>
         <!-- 05 聯繫我 -->
