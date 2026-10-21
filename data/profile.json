@@ -8,6 +8,7 @@
     "資安從業人員，現任 <strong>MDR（Managed Detection &amp; Response）工程師</strong>，負責企業端點偵測、事件回應與威脅獵捕。同時藉由CPTS的訓練，學著理解如何從 attacker 的角度思考。",
     "正在攻讀 <strong>HackTheBox CPTS</strong>認證，透過系統化的課程與實戰靶機，建立完整的滲透測試方法論。",
     "這邊分享我學習的方式 — 每個模組都會整理成結構化的筆記，包含方法論、指令範例。",
+    "另外我將備考 <strong>CompTIA CySA+</strong> 的心得藉著鐵人賽的機會，轉化成 <a href=\"https://ithelp.ithome.com.tw/users/20184107/ironman\" style=\"color:var(--neon-cyan);text-decoration:none;border-bottom:1px dashed var(--neon-cyan)\">30 篇系列文章</a>，完整記錄從零到考取認證的學習歷程。",
     "信念：<strong>「先理解原理，再記指令」</strong>。知道 <em>為什麼</em> 比知道 <em>怎麼做</em> 更重要 — 工具會變，但底層邏輯不會。"
   ],  
   "contact": [
