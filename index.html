@@ -299,15 +299,15 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">frog</div>
         <ul class="nav-items">
-            <li><a class="nav-item active" data-page="home"><span class="nav-icon">🏠</span>Home</a></li>
-            <li><a class="nav-item" data-page="about"><span class="nav-icon">👤</span>關於我</a></li>
-            <li><a class="nav-item" data-page="blog"><span class="nav-icon">📝</span>學習隨筆</a></li>
+            <li><a class="nav-item active" data-page="home">Home</a></li>
+            <li><a class="nav-item" data-page="about">關於我</a></li>
+            <li><a class="nav-item" data-page="blog">學習隨筆</a></li>
             <!-- TODO: 資源分享暫時隱藏，內容保留待補充
-            <li><a class="nav-item" data-page="resources"><span class="nav-icon">🔧</span>資源分享</a></li>
+            <li><a class="nav-item" data-page="resources">資源分享</a></li>
             -->
-            <li><a class="nav-item" data-page="contact"><span class="nav-icon">📬</span>聯繫我</a></li>
+            <li><a class="nav-item" data-page="contact">聯繫我</a></li>
         </ul>
-        <div class="sidebar-footer">Built by Frog 🐸<br>Powered by caffeine<br>&amp; curiosity | 2026</div>
+        <div class="sidebar-footer">Built by Frog<br>Powered by caffeine<br>&amp; curiosity | 2026</div>
     </aside>
 
     <main class="main" id="main">
@@ -495,6 +495,11 @@ async function init() {
 }
 
 // ===== 事件綁定 =====
+// 漢堡選單
+const hamburger = $('#hamburger');
+const sidebar = $('#sidebar');
+const overlay = $('#overlay');
+
 // 分頁切換
 $$('.nav-item').forEach(item => {
     item.addEventListener('click', e => {
@@ -505,11 +510,6 @@ $$('.nav-item').forEach(item => {
         hamburger.classList.remove('open');
     });
 });
-
-// 漢堡選單
-const hamburger = $('#hamburger');
-const sidebar = $('#sidebar');
-const overlay = $('#overlay');
 hamburger.addEventListener('click', () => {
     const open = sidebar.classList.toggle('open');
     overlay.classList.toggle('show', open);

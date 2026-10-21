@@ -1,6 +1,6 @@
 {
   "name": "Frog",
-  "emoji": "🐸",
+  "emoji": "",
   "title": "Security Engineer",
   "greeting": "$ whoami",
   "description": "目前正在準備 CPTS 認證，同時建構紅藍隊實戰方法論。持續透過 HackTheBox 磨練攻擊技術，並將所學整理成結構化筆記。",
@@ -12,6 +12,6 @@
     "信念：<strong>「先理解原理，再記指令」</strong>。知道 <em>為什麼</em> 比知道 <em>怎麼做</em> 更重要 — 工具會變，但底層邏輯不會。"
   ],  
   "contact": [
-    { "icon": "🐙", "label": "GitHub", "url": "https://github.com/fr0g-git" }
+    { "icon": "", "label": "GitHub", "url": "https://github.com/fr0g-git" }
   ]
 }
