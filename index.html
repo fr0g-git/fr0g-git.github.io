@@ -14,9 +14,9 @@
             --neon-green:    #12e857;
             --neon-cyan:     #05d9e8;
             --neon-blue:     #2979ff;
-            --text-primary:  #e0e0e0;
-            --text-secondary:#8899aa;
-            --text-muted:    #556677;
+            --text-primary:  #f0f0f0;
+            --text-secondary:#a0b4c8;
+            --text-muted:    #667788;
             --border:        #1e2d3d;
             --code-bg:       #0d1117;
             --tag-bg:        rgba(18,232,87,0.1);
@@ -33,7 +33,8 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             font-family: var(--font-sans);
-            line-height: 1.7;
+            font-size: 1.05rem;
+            line-height: 1.8;
             min-height: 100vh;
             overflow: hidden;
         }
@@ -55,7 +56,6 @@
             display: flex;
             height: 100vh;
             position: relative;
-            z-index: 1;
         }
 
         /* ===== 左側導航 ===== */
@@ -117,17 +117,18 @@
             overflow-y: auto;
         }
         .page { display: none; min-height: 100vh; padding: 3rem; animation: fadeIn 0.35s ease; }
-        .page.active { display: block; }
+        .page.active { display: flex; align-items: center; justify-content: center; }
+        .page.page-long.active { align-items: flex-start; padding-top: 3rem; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .page-inner { max-width: 960px; margin: 0 auto; }
+        .page-inner { max-width: 960px; margin: 0 auto; width: 100%; }
 
         /* ===== Hero ===== */
         .hero-page { display: none; min-height: 100vh; padding: 0 3rem; animation: fadeIn 0.35s ease; }
         .hero-page.active { display: flex; align-items: center; }
         .hero-content { max-width: 700px; }
         .hero-greeting { font-family: var(--font-mono); color: var(--neon-cyan); font-size: 1rem; margin-bottom: 1rem; }
-        .hero-name { font-size: 3.2rem; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 0.5rem; }
-        .hero-name span { color: var(--neon-green); }
+        .hero-name { font-size: 3.2rem; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 0.5rem; text-shadow: 0 0 30px rgba(255,255,255,0.08); }
+        .hero-name span { color: var(--neon-green); text-shadow: 0 0 20px rgba(18,232,87,0.4); }
         .hero-title { font-size: 1.5rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
         .hero-desc { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 2rem; }
         .hero-cta {
@@ -147,6 +148,7 @@
         h2 {
             font-family: var(--font-mono); font-size: 1.8rem; color: var(--neon-green);
             margin-bottom: 2rem; display: flex; align-items: center; gap: 0.6rem;
+            text-shadow: 0 0 15px rgba(18,232,87,0.3);
         }
         h2::before { content: '#'; color: var(--neon-cyan); font-weight: 400; }
         .sub-title {
@@ -320,7 +322,7 @@
         <!-- 02 關於我 -->
         <div class="page" id="page-about"><div class="page-inner" id="about-content"><p class="loading">Loading</p></div></div>
         <!-- 03 學習隨筆 -->
-        <div class="page" id="page-blog"><div class="page-inner" id="blog-content"><p class="loading">Loading</p></div></div>
+        <div class="page page-long" id="page-blog"><div class="page-inner" id="blog-content"><p class="loading">Loading</p></div></div>
         <!-- 04 資源分享 -->
         <div class="page" id="page-resources"><div class="page-inner" id="resources-content"><p class="loading">Loading</p></div></div>
         <!-- 05 聯繫我 -->
