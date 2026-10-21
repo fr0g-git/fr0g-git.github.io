@@ -87,17 +87,20 @@
         .nav-items { list-style: none; flex: 1; }
         .nav-item {
             display: block;
-            padding: 0.8rem 1.5rem;
+            padding: 0.55rem 1.1rem;
+            margin: 0 1rem 0.6rem;
             color: var(--text-primary);
             text-decoration: none;
             font-family: var(--font-mono);
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
-            border-right: 3px solid transparent;
+            transition: all 0.25s;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: none;
         }
-        .nav-item:hover { color: var(--neon-green); background: rgba(18,232,87,0.04); }
-        .nav-item.active { color: var(--neon-green); border-right-color: var(--neon-green); background: rgba(18,232,87,0.06); }
+        .nav-item:hover { color: var(--neon-green); border-color: var(--neon-green); background: rgba(18,232,87,0.04); }
+        .nav-item.active { color: var(--neon-green); border-color: var(--neon-green); background: rgba(18,232,87,0.06); }
         .nav-item .nav-icon { margin-right: 0.6rem; font-size: 1rem; }
         .nav-item::before { content: '$ '; color: var(--text-muted); font-size: 0.8rem; }
         .sidebar-footer {
@@ -300,7 +303,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo"><span style="color:var(--neon-green)">frog</span><span style="color:var(--text-muted)">@</span><span style="color:var(--neon-cyan)">parrot</span><span style="color:var(--text-muted)">:~$</span></div>
         <ul class="nav-items">
-            <li><a class="nav-item active" data-page="home">cd ~/home</a></li>
+            <li><a class="nav-item active" data-page="home">cd ~</a></li>
             <li><a class="nav-item" data-page="about">cd ~/about</a></li>
             <li><a class="nav-item" data-page="blog">cd ~/writeups</a></li>
             <!-- TODO: 資源分享暫時隱藏，內容保留待補充
