@@ -363,12 +363,14 @@ function renderAbout(p) {
     const aboutHalf = Math.ceil(p.about.length / 2);
     const col1 = p.about.slice(0, aboutHalf).map(t => `<p>${t}</p>`).join('');
     const col2 = p.about.slice(aboutHalf).map(t => `<p>${t}</p>`).join('');
-    const skills = p.skills.map(s => `
+    const skills = (p.skills || []).map(s => `
         <div class="skill-card">
             <h3>${s.icon} ${s.name}</h3>
             <div class="skill-tags">${s.tags.map(t => `<span class="skill-tag">${t}</span>`).join('')}</div>
         </div>
     `).join('');
+
+    const skillsSection = skills ? `<h3 class="sub-title">技術能力</h3><div class="skills-grid">${skills}</div>` : '';
 
     $('#about-content').innerHTML = `
         <h2>關於我</h2>
@@ -376,8 +378,7 @@ function renderAbout(p) {
             <div class="about-text">${col1}</div>
             <div class="about-text">${col2}</div>
         </div>
-        <h3 class="sub-title">技術能力</h3>
-        <div class="skills-grid">${skills}</div>
+        ${skillsSection}
     `;
 }
 
