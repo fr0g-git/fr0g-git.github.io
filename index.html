@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frog | Cybersecurity Portfolio</title>
+    <style>
+        /* ===== Parrot OS 配色 ===== */
+        :root {
+            --bg-primary:    #0a0e14;
+            --bg-secondary:  #111820;
+            --bg-card:       #141b24;
+            --bg-card-hover: #1a2332;
+            --neon-green:    #12e857;
+            --neon-cyan:     #05d9e8;
+            --neon-blue:     #2979ff;
+            --text-primary:  #e0e0e0;
+            --text-secondary:#8899aa;
+            --text-muted:    #556677;
+            --border:        #1e2d3d;
+            --code-bg:       #0d1117;
+            --tag-bg:        rgba(18,232,87,0.1);
+            --tag-border:    rgba(18,232,87,0.3);
+            --font-mono:     'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            --font-sans:     'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --nav-width:     220px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 背景動態格線 ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                linear-gradient(rgba(18,232,87,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18,232,87,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .layout {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== 左側導航 ===== */
+        .sidebar {
+            width: var(--nav-width);
+            min-width: var(--nav-width);
+            background: rgba(10,14,20,0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 0;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            color: var(--neon-green);
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 0 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .sidebar-logo::before { content: '~/'; color: var(--text-muted); }
+        .nav-items { list-style: none; flex: 1; }
+        .nav-item {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover { color: var(--neon-green); background: rgba(18,232,87,0.04); }
+        .nav-item.active { color: var(--neon-green); border-left-color: var(--neon-green); background: rgba(18,232,87,0.06); }
+        .nav-item .nav-icon { margin-right: 0.6rem; font-size: 1rem; }
+        .nav-item::before { content: '$ '; color: var(--text-muted); font-size: 0.8rem; }
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            line-height: 1.5;
+        }
+
+        /* ===== 右側主內容 ===== */
+        .main {
+            margin-left: var(--nav-width);
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .page { display: none; min-height: 100vh; padding: 3rem; animation: fadeIn 0.35s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .page-inner { max-width: 960px; margin: 0 auto; }
+
+        /* ===== Hero ===== */
+        .hero-page { display: none; min-height: 100vh; padding: 0 3rem; animation: fadeIn 0.35s ease; }
+        .hero-page.active { display: flex; align-items: center; }
+        .hero-content { max-width: 700px; }
+        .hero-greeting { font-family: var(--font-mono); color: var(--neon-cyan); font-size: 1rem; margin-bottom: 1rem; }
+        .hero-name { font-size: 3.2rem; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 0.5rem; }
+        .hero-name span { color: var(--neon-green); }
+        .hero-title { font-size: 1.5rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+        .hero-desc { color: var(--text-secondary); font-size: 1.05rem; max-width: 540px; margin-bottom: 2rem; }
+        .hero-cta {
+            display: inline-block; padding: 0.7rem 1.8rem; border: 1px solid var(--neon-green);
+            color: var(--neon-green); font-family: var(--font-mono); font-size: 0.9rem;
+            text-decoration: none; border-radius: 4px; cursor: pointer; transition: all 0.25s; background: none;
+        }
+        .hero-cta:hover { background: rgba(18,232,87,0.1); box-shadow: 0 0 20px rgba(18,232,87,0.15); }
+        .terminal-prompt { font-family: var(--font-mono); color: var(--text-muted); font-size: 0.95rem; margin-top: 2rem; }
+        .terminal-prompt .cursor {
+            display: inline-block; width: 8px; height: 1.1em; background: var(--neon-green);
+            animation: blink 1s step-end infinite; vertical-align: text-bottom; margin-left: 2px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ===== 通用標題 ===== */
+        h2 {
+            font-family: var(--font-mono); font-size: 1.8rem; color: var(--neon-green);
+            margin-bottom: 2rem; display: flex; align-items: center; gap: 0.6rem;
+        }
+        h2::before { content: '#'; color: var(--neon-cyan); font-weight: 400; }
+        .sub-title {
+            font-family: var(--font-mono); font-size: 1.1rem; color: var(--text-primary);
+            margin: 2.5rem 0 1.2rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .sub-title::before { content: '//'; color: var(--neon-cyan); }
+
+        /* ===== About ===== */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        .about-text { color: var(--text-secondary); font-size: 1rem; }
+        .about-text p { margin-bottom: 1rem; }
+        .about-text strong { color: var(--text-primary); }
+
+        /* ===== Skills ===== */
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .skill-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+            padding: 1.5rem; transition: all 0.25s;
+        }
+        .skill-card:hover {
+            border-color: var(--neon-green); background: var(--bg-card-hover);
+            transform: translateY(-2px); box-shadow: 0 0 18px rgba(18,232,87,0.12);
+        }
+        .skill-card h3 { font-family: var(--font-mono); color: var(--neon-cyan); font-size: 1rem; margin-bottom: 1rem; }
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .skill-tag {
+            background: var(--tag-bg); border: 1px solid var(--tag-border); color: var(--neon-green);
+            font-family: var(--font-mono); font-size: 0.78rem; padding: 0.25rem 0.65rem; border-radius: 3px;
+        }
+
+        /* ===== 篩選按鈕 ===== */
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 2rem; }
+        .filter-btn {
+            background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+            font-family: var(--font-mono); font-size: 0.85rem; padding: 0.45rem 1rem;
+            border-radius: 4px; cursor: pointer; transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .filter-btn.active { border-color: var(--neon-green); color: var(--neon-green); background: rgba(18,232,87,0.08); }
+
+        /* ===== Blog 卡片 ===== */
+        .post-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 1.5rem; overflow: hidden; transition: border-color 0.25s, box-shadow 0.25s;
+        }
+        .post-card:hover { border-color: var(--neon-green); box-shadow: 0 0 18px rgba(18,232,87,0.12); }
+        .post-card.hidden { display: none; }
+        .post-header {
+            padding: 1.3rem 1.5rem; cursor: pointer; display: grid;
+            grid-template-columns: 1fr auto; gap: 0.4rem 1rem; align-items: center; user-select: none;
+        }
+        .post-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; font-family: var(--font-mono); font-size: 0.78rem; }
+        .post-date { color: var(--text-muted); }
+        .cat-tag { padding: 0.1rem 0.55rem; border-radius: 3px; border: 1px solid; }
+        .cat-network { color: var(--neon-cyan); border-color: rgba(5,217,232,0.4); background: rgba(5,217,232,0.08); }
+        .cat-web { color: #ffb74d; border-color: rgba(255,183,77,0.4); background: rgba(255,183,77,0.08); }
+        .post-title { font-family: var(--font-mono); font-size: 1.05rem; color: var(--neon-cyan); font-weight: 600; }
+        .post-desc { grid-column: 1 / 2; font-size: 0.9rem; color: var(--text-secondary); }
+        .post-tags { grid-column: 1 / 2; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .post-tag { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); background: rgba(85,102,119,0.15); padding: 0.1rem 0.5rem; border-radius: 3px; }
+        .writeup-toggle { grid-column: 2 / 3; grid-row: 2 / 4; color: var(--text-muted); font-size: 1.2rem; transition: transform 0.3s; }
+        .post-card.open .writeup-toggle { transform: rotate(180deg); }
+        .writeup-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+        .post-card.open .writeup-body { max-height: 20000px; }
+        .writeup-content { padding: 0 1.5rem 1.5rem; font-size: 0.92rem; color: var(--text-secondary); }
+        .writeup-content h4 { font-family: var(--font-mono); color: var(--neon-green); font-size: 0.95rem; margin: 1.5rem 0 0.7rem; }
+        .writeup-content h4:first-child { margin-top: 0; }
+        .writeup-content p { margin-bottom: 0.8rem; }
+        .writeup-content ul, .writeup-content ol { margin: 0.5rem 0 1rem 1.2rem; }
+        .writeup-content li { margin-bottom: 0.3rem; }
+        .writeup-content strong { color: var(--text-primary); }
+        .writeup-content em { color: var(--neon-cyan); font-style: normal; }
+        .writeup-content code { font-family: var(--font-mono); background: var(--code-bg); color: var(--neon-green); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.85rem; }
+        .writeup-content pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; overflow-x: auto; margin: 0.8rem 0 1.2rem; font-size: 0.82rem; line-height: 1.6; }
+        .writeup-content pre code { background: none; padding: 0; color: var(--text-primary); }
+        .writeup-content .warning { color: #ff6b6b; }
+        .writeup-content table { width: 100%; border-collapse: collapse; margin: 0.8rem 0 1.2rem; font-size: 0.85rem; }
+        .writeup-content th, .writeup-content td { text-align: left; padding: 0.5rem 0.8rem; border: 1px solid var(--border); }
+        .writeup-content th { background: var(--code-bg); color: var(--neon-cyan); font-family: var(--font-mono); font-weight: 600; }
+        .writeup-content td { color: var(--text-secondary); }
+        .writeup-content blockquote { border-left: 3px solid var(--neon-green); padding: 0.5rem 1rem; margin: 0.8rem 0; background: rgba(18,232,87,0.05); border-radius: 0 4px 4px 0; }
+        .writeup-content blockquote strong { color: var(--neon-green); }
+
+        /* ===== Resources ===== */
+        .resource-category { font-family: var(--font-mono); color: var(--text-primary); font-size: 1.1rem; margin-bottom: 1.5rem; }
+        .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; }
+        .resource-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+            padding: 1.3rem 1.5rem; transition: all 0.25s;
+        }
+        .resource-card:hover { border-color: var(--neon-green); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 0 18px rgba(18,232,87,0.12); }
+        .resource-name { font-family: var(--font-mono); color: var(--neon-cyan); font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .resource-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.8rem; }
+        .resource-link { font-family: var(--font-mono); font-size: 0.8rem; color: var(--neon-green); text-decoration: none; }
+        .resource-link:hover { opacity: 0.7; }
+
+        /* ===== Contact ===== */
+        .contact-grid { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .contact-link {
+            display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1.5rem;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+            color: var(--text-secondary); text-decoration: none; font-family: var(--font-mono);
+            font-size: 0.9rem; transition: all 0.25s;
+        }
+        .contact-link:hover { border-color: var(--neon-green); color: var(--neon-green); }
+        .contact-icon { font-size: 1.2rem; }
+        .contact-notice { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; margin-top: 1rem; }
+
+        /* ===== Loading ===== */
+        .loading { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.9rem; }
+        .loading::after { content: ''; animation: dots 1.5s infinite; }
+        @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } }
+
+        /* ===== 手機版 ===== */
+        .hamburger {
+            display: none; position: fixed; top: 12px; left: 12px; z-index: 200;
+            flex-direction: column; gap: 5px; cursor: pointer;
+            background: rgba(10,14,20,0.9); border: 1px solid var(--border); border-radius: 6px; padding: 10px;
+        }
+        .hamburger span { width: 22px; height: 2px; background: var(--neon-green); transition: all 0.3s; display: block; }
+        .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 50; }
+        .overlay.show { display: block; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px; min-width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .hamburger { display: flex; }
+            .main { margin-left: 0; }
+            .hero-page { padding: 0 1.5rem; }
+            .page { padding: 2rem 1.5rem; padding-top: 4rem; }
+            .hero-name { font-size: 2rem; }
+            .hero-title { font-size: 1.1rem; }
+            .about-grid { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" aria-label="選單"><span></span><span></span><span></span></button>
+<div class="overlay" id="overlay"></div>
+
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">frog</div>
+        <ul class="nav-items">
+            <li><a class="nav-item active" data-page="home"><span class="nav-icon">🏠</span>主視覺</a></li>
+            <li><a class="nav-item" data-page="about"><span class="nav-icon">👤</span>關於我</a></li>
+            <li><a class="nav-item" data-page="blog"><span class="nav-icon">📝</span>學習隨筆</a></li>
+            <!-- TODO: 資源分享暫時隱藏，內容保留待補充
+            <li><a class="nav-item" data-page="resources"><span class="nav-icon">🔧</span>資源分享</a></li>
+            -->
+            <li><a class="nav-item" data-page="contact"><span class="nav-icon">📬</span>聯繫我</a></li>
+        </ul>
+        <div class="sidebar-footer">Built by Frog 🐸<br>Powered by caffeine<br>&amp; curiosity | 2026</div>
+    </aside>
+
+    <main class="main" id="main">
+        <!-- 01 主視覺 -->
+        <div class="hero-page active" id="page-home">
+            <div class="hero-content" id="hero-content">
+                <p class="loading">Loading</p>
+            </div>
+        </div>
+        <!-- 02 關於我 -->
+        <div class="page" id="page-about"><div class="page-inner" id="about-content"><p class="loading">Loading</p></div></div>
+        <!-- 03 學習隨筆 -->
+        <div class="page" id="page-blog"><div class="page-inner" id="blog-content"><p class="loading">Loading</p></div></div>
+        <!-- 04 資源分享 -->
+        <div class="page" id="page-resources"><div class="page-inner" id="resources-content"><p class="loading">Loading</p></div></div>
+        <!-- 05 聯繫我 -->
+        <div class="page" id="page-contact"><div class="page-inner" id="contact-content"><p class="loading">Loading</p></div></div>
+    </main>
+</div>
+
+<script>
+// ===== 工具函式 =====
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const fetchJSON = url => fetch(url).then(r => r.json());
+const fetchHTML = url => fetch(url).then(r => r.text());
+
+// ===== 分頁切換 =====
+const mainEl = $('#main');
+function switchPage(name) {
+    $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === name));
+    $$('.page, .hero-page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+    mainEl.scrollTop = 0;
+}
+
+// ===== 渲染：主視覺 =====
+function renderHero(p) {
+    $('#hero-content').innerHTML = `
+        <p class="hero-greeting">${p.greeting}</p>
+        <h1 class="hero-name">Hi, I'm <span>${p.name}</span> ${p.emoji}</h1>
+        <p class="hero-title">${p.title}</p>
+        <p class="hero-desc">${p.description}</p>
+        <button class="hero-cta" data-goto="blog">$ cat writeups/*</button>
+        <div class="terminal-prompt">
+            <span style="color:var(--neon-green)">frog@parrot</span><span style="color:var(--text-muted)">:</span><span style="color:var(--neon-cyan)">~</span><span style="color:var(--text-muted)">$</span> <span class="cursor"></span>
+        </div>
+    `;
+    $$('[data-goto]').forEach(btn => btn.addEventListener('click', () => switchPage(btn.dataset.goto)));
+}
+
+// ===== 渲染：關於我 =====
+function renderAbout(p) {
+    const aboutHalf = Math.ceil(p.about.length / 2);
+    const col1 = p.about.slice(0, aboutHalf).map(t => `<p>${t}</p>`).join('');
+    const col2 = p.about.slice(aboutHalf).map(t => `<p>${t}</p>`).join('');
+    const skills = p.skills.map(s => `
+        <div class="skill-card">
+            <h3>${s.icon} ${s.name}</h3>
+            <div class="skill-tags">${s.tags.map(t => `<span class="skill-tag">${t}</span>`).join('')}</div>
+        </div>
+    `).join('');
+
+    $('#about-content').innerHTML = `
+        <h2>關於我</h2>
+        <div class="about-grid">
+            <div class="about-text">${col1}</div>
+            <div class="about-text">${col2}</div>
+        </div>
+        <h3 class="sub-title">技術能力</h3>
+        <div class="skills-grid">${skills}</div>
+    `;
+}
+
+// ===== 渲染：學習隨筆 =====
+async function renderBlog(posts) {
+    // 取得所有不重複的分類
+    const categories = [...new Set(posts.map(p => p.category))];
+    const filterBtns = `
+        <button class="filter-btn active" data-filter="all">全部</button>
+        ${categories.map(c => `<button class="filter-btn" data-filter="${c}">${c}</button>`).join('')}
+    `;
+
+    // 建立卡片（內容先空，後面非同步載入）
+    const cards = posts.map(post => `
+        <article class="post-card" data-category="${post.category}" id="post-${post.id}">
+            <div class="post-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="post-meta">
+                    <time class="post-date" datetime="${post.date}">${post.date}</time>
+                    <span class="cat-tag ${post.categoryClass}">${post.category}</span>
+                </div>
+                <h3 class="post-title">${post.title}</h3>
+                <p class="post-desc">${post.description}</p>
+                <div class="post-tags">${post.tags.map(t => `<span class="post-tag">#${t}</span>`).join('')}</div>
+                <span class="writeup-toggle">▼</span>
+            </div>
+            <div class="writeup-body">
+                <div class="writeup-content"><p class="loading">Loading</p></div>
+            </div>
+        </article>
+    `).join('');
+
+    $('#blog-content').innerHTML = `
+        <h2>學習隨筆</h2>
+        <div class="filter-bar" id="filter-bar">${filterBtns}</div>
+        ${cards}
+    `;
+
+    // 非同步載入每篇文章內容
+    for (const post of posts) {
+        try {
+            const html = await fetchHTML(post.file);
+            const el = document.querySelector(`#post-${post.id} .writeup-content`);
+            if (el) el.innerHTML = html;
+        } catch (e) {
+            const el = document.querySelector(`#post-${post.id} .writeup-content`);
+            if (el) el.innerHTML = `<p class="warning">⚠️ 載入失敗: ${post.file}</p>`;
+        }
+    }
+
+    // 綁定篩選
+    $$('#filter-bar .filter-btn').forEach(btn => btn.addEventListener('click', () => {
+        $$('#filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filter;
+        $$('.post-card').forEach(p => p.classList.toggle('hidden', !(f === 'all' || p.dataset.category === f)));
+    }));
+
+    // 綁定展開
+    $$('.post-header').forEach(header => {
+        const toggle = () => {
+            const card = header.parentElement;
+            card.classList.toggle('open');
+            header.setAttribute('aria-expanded', String(card.classList.contains('open')));
+        };
+        header.addEventListener('click', toggle);
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+    });
+}
+
+// ===== 渲染：資源分享 =====
+function renderResources(data) {
+    const sections = data.map(cat => `
+        <h3 class="resource-category">${cat.category}</h3>
+        <div class="resource-grid">
+            ${cat.tools.map(t => `
+                <div class="resource-card">
+                    <div class="resource-name">${t.name}</div>
+                    <div class="resource-desc">${t.desc}</div>
+                    <a href="${t.url}" class="resource-link">→ 前往工具頁</a>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+
+    $('#resources-content').innerHTML = `<h2>資源分享</h2>${sections}`;
+}
+
+// ===== 渲染：聯繫我 =====
+function renderContact(p) {
+    const links = p.contact.map(c => `
+        <a href="${c.url}" class="contact-link"><span class="contact-icon">${c.icon}</span> ${c.label}</a>
+    `).join('');
+    $('#contact-content').innerHTML = `
+        <h2>聯繫我</h2>
+        <div class="contact-grid">${links}</div>
+        <p class="contact-notice">即將上線，敬請期待 🚧</p>
+    `;
+}
+
+// ===== 初始化 =====
+async function init() {
+    try {
+        const [profile, posts, resources] = await Promise.all([
+            fetchJSON('data/profile.json'),
+            fetchJSON('data/posts.json'),
+            fetchJSON('data/resources.json')
+        ]);
+
+        renderHero(profile);
+        renderAbout(profile);
+        renderResources(resources);
+        renderContact(profile);
+        await renderBlog(posts);
+    } catch (e) {
+        console.error('載入資料失敗:', e);
+    }
+}
+
+// ===== 事件綁定 =====
+// 分頁切換
+$$('.nav-item').forEach(item => {
+    item.addEventListener('click', e => {
+        e.preventDefault();
+        switchPage(item.dataset.page);
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        hamburger.classList.remove('open');
+    });
+});
+
+// 漢堡選單
+const hamburger = $('#hamburger');
+const sidebar = $('#sidebar');
+const overlay = $('#overlay');
+hamburger.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('open');
+    overlay.classList.toggle('show', open);
+    hamburger.classList.toggle('open', open);
+});
+overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    hamburger.classList.remove('open');
+});
+
+// 鍵盤快捷
+document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    const map = { '1': 'home', '2': 'about', '3': 'blog', '4': 'contact' };
+    if (map[e.key]) switchPage(map[e.key]);
+});
+
+// 啟動
+init();
+</script>
+
+</body>
+</html>

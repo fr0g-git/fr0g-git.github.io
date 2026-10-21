@@ -1,0 +1,22 @@
+[
+  {
+    "id": "nmap",
+    "title": "📡 Nmap 完整方法論 & Cheatsheet",
+    "date": "2026-10-13",
+    "category": "Network",
+    "categoryClass": "cat-network",
+    "tags": ["Nmap", "Firewall Evasion", "CPTS"],
+    "description": "滲透測試中的 Nmap 使用方法論，涵蓋防火牆繞過、掃描策略、服務識別與 NSE 腳本。",
+    "file": "posts/nmap.html"
+  },
+  {
+    "id": "web-vulns",
+    "title": "🌐 Web 基礎概念與常見漏洞關聯",
+    "date": "2026-10-15",
+    "category": "Web Security",
+    "categoryClass": "cat-web",
+    "tags": ["SQLi", "XSS", "CSRF", "LFI", "CPTS"],
+    "description": "建立 HTML、CSS、JavaScript 與 SQLi、XSS、CSRF、LFI 之間的關聯，理解漏洞成因與串聯攻擊鏈。",
+    "file": "posts/web-vulns.html"
+  }
+]

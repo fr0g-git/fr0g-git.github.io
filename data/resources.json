@@ -1,0 +1,15 @@
+[
+  {
+    "category": "🔴 滲透測試工具",
+    "tools": [
+      { "name": "Nmap", "desc": "網路掃描與主機發現的瑞士刀", "url": "#" },
+      { "name": "Burp Suite", "desc": "Web 應用程式滲透測試的標準工具", "url": "#" },
+      { "name": "SQLMap", "desc": "自動化 SQL 注入檢測與利用", "url": "#" },
+      { "name": "Gobuster", "desc": "目錄與子網域暴力列舉", "url": "#" },
+      { "name": "Hashcat", "desc": "GPU 加速的密碼雜湊破解工具", "url": "#" },
+      { "name": "Metasploit", "desc": "滲透測試框架與漏洞利用平台", "url": "#" },
+      { "name": "John the Ripper", "desc": "經典密碼破解工具", "url": "#" },
+      { "name": "Wireshark", "desc": "網路封包分析器", "url": "#" }
+    ]
+  }
+]

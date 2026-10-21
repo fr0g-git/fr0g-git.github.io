@@ -1,0 +1,153 @@
+<p>滲透測試中的 Nmap 使用方法論，涵蓋防火牆繞過、掃描策略、服務識別與 NSE 腳本。基於 HTB Academy Firewall/IDS Evasion 模組實戰經驗。</p>
+
+<h4>一、掃描前：判斷防火牆類型（永遠第一步）</h4>
+<pre><code>nmap -sA -Pn -n -p &lt;ports&gt; &lt;target&gt;</code></pre>
+<table>
+    <tr><th>結果</th><th>代表</th><th>難度</th></tr>
+    <tr><td>全部 unfiltered</td><td>Stateless packet filter</td><td>好繞</td></tr>
+    <tr><td>全部 filtered</td><td>Stateful firewall</td><td>需要更多技巧</td></tr>
+</table>
+
+<h4>二、主機發現</h4>
+<pre><code># 只做主機發現，不掃 port（速度快）
+nmap -sn &lt;network/CIDR&gt;
+
+# 從檔案匯入目標清單
+nmap -iL targets.txt</code></pre>
+
+<h4>三、防火牆繞過技巧</h4>
+<p><strong>3.1 Source Port 偽裝（最有效的單一技巧）</strong></p>
+<pre><code>nmap -sS -Pn -n --source-port 53 -p &lt;ports&gt; &lt;target&gt;</code></pre>
+<p>許多防火牆允許來源 port 53（DNS 回應）流量通過。</p>
+<blockquote><strong>CPTS 考試重點：</strong> <code>--source-port 53</code> 是最常考的繞過技巧。</blockquote>
+
+<p><strong>3.2 封包分片（謹慎使用）</strong></p>
+<pre><code>nmap -f &lt;target&gt;           # 8-byte 分片
+nmap -f -f &lt;target&gt;        # 16-byte 分片
+nmap --mtu 24 &lt;target&gt;     # 自定義 MTU（必須是 8 的倍數）</code></pre>
+<p class="warning">⚠️ 重要陷阱：<code>-f</code> 會導致 <code>-sV</code> 回傳 tcpwrapped。<code>-f</code> 只用於 port 發現，不要跟 <code>-sV</code>、<code>-sC</code>、<code>-sCV</code> 混用。</p>
+
+<p><strong>3.3 Decoy 掃描</strong></p>
+<pre><code>nmap -D RND:10 &lt;target&gt;                   # 10 個隨機假來源
+nmap -D 10.0.0.1,10.0.0.2,ME &lt;target&gt;    # 指定 decoy + 自己</code></pre>
+
+<p><strong>3.4 其他偽裝技巧</strong></p>
+<pre><code>nmap --data-length 50 &lt;target&gt;    # 附加隨機資料改變封包大小
+nmap --ttl 64 &lt;target&gt;            # 偽裝成特定 OS 的 TTL
+nmap --badsum &lt;target&gt;            # 故意送錯 checksum（測試 IDS）
+nmap -6 &lt;target&gt;                  # IPv6（很多 IDS 規則只針對 IPv4）</code></pre>
+
+<p><strong>3.5 Idle Scan（殭屍掃描）</strong></p>
+<pre><code># 找殭屍主機（IPID 遞增的主機）
+nmap --script ipidseq &lt;candidate&gt;
+
+# 執行殭屍掃描（完全不從自己 IP 發封包）
+nmap -sI &lt;zombie_host&gt; &lt;target&gt;</code></pre>
+
+<h4>四、掃描策略與速率控制</h4>
+<pre><code># 低噪音掃描
+nmap --scan-delay 5s --max-rate 5 &lt;target&gt;
+
+# 全 port 掃描甜蜜點
+nmap -p- --min-rate 100 --max-rate 200 &lt;target&gt;</code></pre>
+
+<table>
+    <tr><th>Template</th><th>全 port 時間</th><th>備註</th></tr>
+    <tr><td>-T0</td><td>~227 天</td><td>不實際</td></tr>
+    <tr><td>-T1</td><td>~11 天</td><td>不實際</td></tr>
+    <tr><td>-T2</td><td>8-20 小時</td><td>勉強可用</td></tr>
+    <tr><td>-T3</td><td>20-40 分鐘</td><td>預設值</td></tr>
+    <tr><td>-T4</td><td>5-15 分鐘</td><td>常用</td></tr>
+</table>
+
+<h4>五、掃描類型</h4>
+<table>
+    <tr><th>參數</th><th>用途</th></tr>
+    <tr><td><code>-sS</code></td><td>SYN 半開放掃描（預設，需 root）</td></tr>
+    <tr><td><code>-sT</code></td><td>TCP connect 全連接掃描</td></tr>
+    <tr><td><code>-sU</code></td><td>UDP 掃描</td></tr>
+    <tr><td><code>-sA</code></td><td>ACK 掃描（判斷防火牆類型）</td></tr>
+    <tr><td><code>-sN</code> / <code>-sF</code> / <code>-sX</code></td><td>NULL / FIN / Xmas 掃描</td></tr>
+    <tr><td><code>-sn</code></td><td>主機發現（不掃 port）</td></tr>
+</table>
+
+<h4>六、服務與系統識別</h4>
+<pre><code>nmap -sV &lt;target&gt;              # 服務版本偵測
+nmap -sC &lt;target&gt;              # 預設 NSE 腳本
+nmap -sCV &lt;target&gt;             # 版本 + 預設腳本（常用組合）
+nmap -O &lt;target&gt;               # OS 偵測</code></pre>
+
+<h4>七、NSE 腳本引擎</h4>
+<pre><code># 單一腳本
+nmap --script &lt;script_name&gt; &lt;target&gt;
+
+# 多個腳本（逗號分隔）
+nmap --script banner,smtp-commands &lt;target&gt;
+
+# 整個類別
+nmap --script vuln &lt;target&gt;
+
+# 自定義 User-Agent
+nmap --script-args http.useragent="Mozilla/5.0 ..." &lt;target&gt;</code></pre>
+
+<table>
+    <tr><th>類別</th><th>說明</th></tr>
+    <tr><td>auth</td><td>判斷驗證憑證</td></tr>
+    <tr><td>brute</td><td>以憑證暴力破解登入對應服務</td></tr>
+    <tr><td>default</td><td>使用 -sC 時執行的預設腳本</td></tr>
+    <tr><td>discovery</td><td>評估可存取的服務</td></tr>
+    <tr><td>exploit</td><td>嘗試利用已知漏洞</td></tr>
+    <tr><td>vuln</td><td>識別特定漏洞</td></tr>
+    <tr><td>safe</td><td>不執行侵入性和破壞性存取的防禦性腳本</td></tr>
+</table>
+
+<h4>八、輸出格式</h4>
+<pre><code># 同時輸出三種格式（最常用）
+nmap -oA &lt;basename&gt; &lt;target&gt;
+
+# XML 轉 HTML（方便閱讀）
+xsltproc output.xml -o output.html</code></pre>
+
+<h4>九、tcpwrapped 排查流程</h4>
+<p>當 <code>-sV</code> 回傳 <code>tcpwrapped</code>（TCP 握手成功但服務沉默）：</p>
+<ol>
+    <li><strong>移除 <code>-f</code></strong> — 分片是最常見的成因</li>
+    <li>NSE 探測：
+        <pre><code>nmap --source-port 53 -Pn -n -p &lt;port&gt; \
+     --script=banner,http-title,http-headers &lt;target&gt;</code></pre>
+    </li>
+    <li>手動 nc 探測：
+        <pre><code>sudo nc -s &lt;your_vpn_ip&gt; -p 53 &lt;target&gt; &lt;port&gt;</code></pre>
+    </li>
+    <li>curl 探測：
+        <pre><code>sudo curl -v --local-port 53 http://&lt;target&gt;:&lt;port&gt;/
+sudo curl -vk --local-port 53 https://&lt;target&gt;:&lt;port&gt;/</code></pre>
+    </li>
+</ol>
+
+<h4>十、實戰組合指令</h4>
+<pre><code># 低噪音 Port 發現
+nmap -sS --source-port 53 -Pn -n \
+     --scan-delay 5s --max-rate 5 \
+     --data-length 24 -p &lt;ports&gt; &lt;target&gt;
+
+# 服務識別（不帶 -f）
+nmap -sCV --source-port 53 -Pn -n -p &lt;open_ports&gt; &lt;target&gt;
+
+# 全功能低噪音掃描
+nmap -sS -T2 --source-port 53 -f --data-length 24 \
+     --scan-delay 5s --max-rate 5 -Pn -n \
+     -p 21,22,80,443,445,3389,8080 &lt;target&gt;</code></pre>
+
+<h4>十一、CPTS / CDSA 考試重點</h4>
+<p><strong>CPTS（攻擊端）：</strong></p>
+<ul>
+    <li><code>--source-port 53</code> + <code>-Pn</code> + <code>-sS</code> 組合必考</li>
+    <li><code>-sA</code> 判斷防火牆類型是解題第一步</li>
+    <li><code>-f</code> 只用於 port discovery，不用於 service detection</li>
+</ul>
+<p><strong>CDSA（防禦端）：</strong></p>
+<ul>
+    <li>Source port 53 的非 DNS 流量 → 明顯異常指標</li>
+    <li>大量來自不同 IP 但時間一致的 SYN → Decoy scan 特徵</li>
+</ul>
